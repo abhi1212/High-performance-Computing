@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #include <stdio.h>
 #include <time.h>
 #include <immintrin.h>
@@ -35,3 +36,53 @@ cout <<"The time in microseconds is"<< chrono::duration_cast<chrono::microsecond
                 return 0;
 
         }
+=======
+#include <stdio.h>
+#include <time.h>
+#include <immintrin.h>
+#include <omp.h>
+#include <chrono>
+#include <ctime>
+#include <iostream>
+
+
+int main(void)
+
+{
+    clock_t t1, t2;
+    volatile int i;
+    float x = 2.7182;
+    long elapsed;
+    std::chrono::time_point<std::chrono::system_clock> start, end;
+
+___m256i odds = _mm256_setr_epi32(20, 72, 48, 9, 100, 3, 5, 8);
+__m256i evens = _mm256_setr_epi32(20, 72, 48, 9, 100, 3, 5, 8);
+
+ 
+
+
+
+
+    #pragma omp parallel
+{
+
+       start = std::chrono::system_clock::now();
+        for(i=0;i<1000000000;i++)
+        {
+              __m256i result = _mm256_add_epi32(evens, odds);
+        }
+
+       end = std::chrono::system_clock::now();
+
+       std::chrono::duration<double> elapsed_seconds = end-start;
+       std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+
+    std::cout << "finished computation at " << std::ctime(&end_time)
+      << "elapsed time: " << elapsed_seconds.count() << "s\n";
+
+}
+
+
+    return 0;
+}
+>>>>>>> origin/master
