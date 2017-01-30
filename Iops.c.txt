@@ -23,8 +23,9 @@ int main(void) {
 
     for (i=0; i < 10000000; i++)
     {
-      d= _mm256_fmadd_ps(a, b, c);
-      e=  d+d;
+      
+        d = _mm256_addsub_ps(a, b);
+        e= d+d;
       }
 
     auto end_time = chrono::high_resolution_clock::now();
