@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <time.h>
 #include <immintrin.h>
@@ -6,6 +5,7 @@
 #include <omp.h>
 #include <chrono>
 #include <iostream>
+
 using namespace std;
 
 int main(void)
@@ -18,6 +18,13 @@ int main(void)
     __m256 evens = _mm256_set_ps(1.0, 2.0, 3.0, 4.0, 5.0,6.0,7.0,8.0);
     __m256 odds = _mm256_set_ps(1.0, 2.0, 3.0, 4.0, 5.0,6.0,7.0,8.0);
     __m256 vecc= _mm256_set_ps(1.0, 2.0, 3.0, 4.0, 5.0,6.0,7.0,8.0);
+    __m256 result= _mm256_set_ps(0.0, 0.0, 0.0, 0.0, 0.0,0.0,0.0,0.0);
+     __m256 result1=_mm256_set_ps(0.0, 0.0, 0.0, 0.0, 0.0,0.0,0.0,0.0);
+     __m256 result2= _mm256_set_ps(0.0, 0.0, 0.0, 0.0, 0.0,0.0,0.0,0.0);
+    __m256 result3= _mm256_set_ps(0.0, 0.0, 0.0, 0.0, 0.0,0.0,0.0,0.0);
+    __m256 result4= _mm256_set_ps(0.0, 0.0, 0.0, 0.0, 0.0,0.0,0.0,0.0);
+    __m256 result5= _mm256_set_ps(0.0, 0.0, 0.0, 0.0, 0.0,0.0,0.0,0.0);
+    __m256 result6= _mm256_set_ps(0.0, 0.0, 0.0, 0.0, 0.0,0.0,0.0,0.0);
 
 
    // cout << chrono::high_resolution_clock::period::den << endl;
@@ -26,16 +33,19 @@ int main(void)
     for (i=0; i < 100000000; i++)
     {
 
-           __m256 result = _mm256_fmaddsub_ps(evens, odds, vecc);
-          __m256 result1 = _mm256_fmaddsub_ps( result, odds, vecc);
-          __m256 result2= _mm256_fmaddsub_ps(evens,  result1, vecc);
-          __m256 result3 = _mm256_fmaddsub_ps(evens,  result2, vecc);
-          __m256 result4 = _mm256_fmaddsub_ps(evens,  result3, vecc);
+
+           result   = _mm256_fmadd_ps(result2, odds, vecc);
+           result1  = _mm256_fmadd_ps(result3, odds, vecc);
+           result2  = _mm256_fmadd_ps(evens,  result, vecc);
+           result3  = _mm256_fmadd_ps(evens,  result1, vecc);
+           result4  = _mm256_fmadd_ps(evens,  result2, vecc);
+           result5  = _mm256_fmadd_ps(evens,  result1, vecc);
+           result6  = _mm256_fmadd_ps(evens,  result5, vecc);
 
 
-  if(i==100)
-{
-    int* res = (int*)&result;
+     asm("");
+    }
+int* res = (int*)&result;
      printf("%d %d %d %d %d %d %d %d\n",
      res[0], res[1], res[2], res[3], res[4], res[5], res[6], res[7]);
 
@@ -47,15 +57,25 @@ int main(void)
     printf("%d %d %d %d %d %d %d %d\n",
     res2[0], res2[1], res2[2], res2[3], res2[4], res2[5], res2[6], res2[7]);
 
-    int* res3 = (int*)&result;
+    int* res3 = (int*)&result3;
     printf("%d %d %d %d %d %d %d %d\n",
     res3[0], res3[1], res3[2], res3[3], res3[4], res3[5], res3[6], res3[7]);
-}
-     asm("");
-    }
+
+    int* res4 = (int*)&result4;
+    printf("%d %d %d %d %d %d %d %d\n",
+    res4[0], res4[1], res4[2], res4[3], res4[4], res4[5], res4[6], res4[7]);
+
+   int* res5 = (int*)&result5;
+    printf("%d %d %d %d %d %d %d %d\n",
+    res5[0], res5[1], res5[2], res5[3], res5[4], res5[5], res5[6], res5[7]);
 
         auto end_time = chrono::high_resolution_clock::now();
-        cout <<"The time in microseconds is"<< chrono::duration_cast<chrono::microseconds>(end_time - start_time).count() << ":";
+        cout <<"The time in microseconds is"<< chrono::duration_cast<chrono::microseconds>(end_time - start_time).count() << ":"<<endl;
+        double j= chrono::duration_cast<chrono::microseconds>(end_time - start_time).count();
+        double k= (j/1000000);
+        double output = 1792 * (1/(10*k));
+        cout<<"Total number of Gflops"<<output<<endl;
+
 }
         return 0;
 
