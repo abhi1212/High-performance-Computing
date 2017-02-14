@@ -1,5 +1,11 @@
-#include <iostream>
 
+#include <stdio.h>
+#include <time.h>
+#include <immintrin.h>
+#include <sys/time.h>
+#include <omp.h>
+#include <chrono>
+#include <iostream>
 using namespace std;
 
 int main(void)
