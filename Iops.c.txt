@@ -1,4 +1,4 @@
-        #include <stdio.h>
+  #include <stdio.h>
         #include <time.h>
         #include <immintrin.h>
         #include <sys/time.h>
@@ -11,24 +11,38 @@
         int main(void)
          {
 
-           #pragma omp parallel
-             {
-               uint32_t i;
+                        #pragma omp parallel
+                        {
+                                        uint32_t i;
 
-           __m256i mask = _mm256_setr_epi32(-20, -72, -48, -9, -100, 3, 5, 8);
-           __m256i mask1 = _mm256_setr_epi32(40, -2, 48, -9, -34, 3, 5, 8);
-           __m256i mask2 = _mm256_setr_epi32(-20, 56, -48, -95, 100, 3, 50, 8);
-           __m256i mask3 = _mm256_setr_epi32(-20, -72, 22, -9, 34, 3, 52, 81);
+           __m256i mask = _mm256_set_epi32(20, 72, 48, 9, 100, 3, 5, 8);
+           __m256i mask1 = _mm256_set_epi32(40, 2, 48, 9, 34, 3, 5, 8);
+           __m256i mask2 = _mm256_set_epi32(20, 56, 48, 95, 100, 3, 50, 8);
+           __m256i mask3 = _mm256_set_epi32(20, 72, 22, 9, 34, 3, 52, 81);
 
-           __m256i result = _mm256_setr_epi32(0, 0, 0, 0, 0, 0, 0, 0);
-           __m256i result1 = _mm256_setr_epi32(0, 0, 0, 0, 0, 0, 0, 0);
-           __m256i result2 = _mm256_setr_epi32(0, 0, 0, 0, 0, 0, 0, 0);
-           __m256i result3 = _mm256_setr_epi32(0, 0, 0, 0, 0, 0, 0, 0);
-           __m256i result4 = _mm256_setr_epi32(0, 0, 0, 0, 0, 0, 0, 0);
-           __m256i result5 = _mm256_setr_epi32(0, 0, 0, 0, 0, 0, 0, 0);
-           __m256i result6 = _mm256_setr_epi32(0, 0, 0, 0, 0, 0, 0, 0);
-           __m256i result7 = _mm256_setr_epi32(0, 0, 0, 0, 0, 0, 0, 0);
-           __m256i result8 = _mm256_setr_epi32(0, 0, 0, 0, 0, 0, 0, 0);
+           __m256i result = _mm256_set_epi32(0, 0, 0, 0, 0, 0, 0, 0);
+           __m256i result1 = _mm256_set_epi32(0, 0, 0, 0, 0, 0, 0, 0);
+           __m256i result2 = _mm256_set_epi32(0, 0, 0, 0, 0, 0, 0, 0);
+           __m256i result3 = _mm256_set_epi32(0, 0, 0, 0, 0, 0, 0, 0);
+           __m256i result4 = _mm256_set_epi32(0, 0, 0, 0, 0, 0, 0, 0);
+           __m256i result5 = _mm256_set_epi32(0, 0, 0, 0, 0, 0, 0, 0);
+           __m256i result6 = _mm256_set_epi32(0, 0, 0, 0, 0, 0, 0, 0);
+           __m256i result7 = _mm256_set_epi32(0, 0, 0, 0, 0, 0, 0, 0);
+           __m256i result8 = _mm256_set_epi32(0, 0, 0, 0, 0, 0, 0, 0);
+           __m256i result9 = _mm256_set_epi32(0, 0, 0, 0, 0, 0, 0, 0);
+           __m256i result10 = _mm256_set_epi32(0, 0, 0, 0, 0, 0, 0, 0);
+           __m256i result11 = _mm256_set_epi32(0, 0, 0, 0, 0, 0, 0, 0);
+            __m256i result12 = _mm256_set_epi32(0, 0, 0, 0, 0, 0, 0, 0);
+           __m256i result13 = _mm256_set_epi32(0, 0, 0, 0, 0, 0, 0, 0);
+           __m256i result14 = _mm256_set_epi32(0, 0, 0, 0, 0, 0, 0, 0);
+           __m256i result15 = _mm256_set_epi32(0, 0, 0, 0, 0, 0, 0, 0);
+           __m256i result16 = _mm256_set_epi32(0, 0, 0, 0, 0, 0, 0, 0);
+           __m256i result17 = _mm256_set_epi32(0, 0, 0, 0, 0, 0, 0, 0);
+
+            __m256i result18 = _mm256_set_epi32(0, 0, 0, 0, 0, 0, 0, 0);
+           __m256i result19 = _mm256_set_epi32(0, 0, 0, 0, 0, 0, 0, 0);
+           __m256i result20 = _mm256_set_epi32(0, 0, 0, 0, 0, 0, 0, 0);
+
              cout << chrono::high_resolution_clock::period::den << endl;
                      auto start_time = chrono::high_resolution_clock::now();
 
@@ -40,10 +54,25 @@
             result2  =  _mm256_mul_epi32 (mask1, mask2);
             result3  =  _mm256_add_epi32 (result1, mask2);
             result4  =   _mm256_add_epi32 (mask1, mask3);
-             result5  =  _mm256_mul_epi32 (mask3, mask);
+            result5  =  _mm256_mul_epi32 (mask3, mask);
             result6  =  _mm256_add_epi32 (mask1,mask2);
             result7  =  _mm256_add_epi32 (mask, mask3);
             result8  =   _mm256_mul_epi32 (result4, mask);
+            result9   =  _mm256_add_epi32 (mask, mask1);
+            result10  =  _mm256_add_epi32 (result6, mask3);
+            result11  =  _mm256_mul_epi32 (mask1, result7);
+             result12  =  _mm256_add_epi32 (mask, mask1);
+            result13  =  _mm256_add_epi32 (result9, mask3);
+            result14  =  _mm256_mul_epi32 (mask1, result10);
+             result15  =  _mm256_add_epi32 (result12, mask1);
+            result16  =  _mm256_add_epi32 (result13, mask3);
+            result17  =  _mm256_mul_epi32 (mask1, result12);
+              result18  =  _mm256_add_epi32 (result15, mask1);
+            result19  =  _mm256_add_epi32 (result16, mask3);
+            result20  =  _mm256_mul_epi32 (mask1, result15);
+
+
+
      asm("");
     }
 int* res = (int*)&result;
@@ -62,9 +91,9 @@ int* res = (int*)&result;
     res3[0], res3[1], res3[2], res3[3], res3[4], res3[5], res3[6], res3[7]);
 
     int* res4 = (int*)&result4;
-    printf("%d %d %d %d %d %d %d %d\n",
+     printf("%d %d %d %d %d %d %d %d\n",
     res4[0], res4[1], res4[2], res4[3], res4[4], res4[5], res4[6], res4[7]);
-    int* res5 = (int*)&result5;
+   int* res5 = (int*)&result5;
     printf("%d %d %d %d %d %d %d %d\n",
     res5[0], res5[1], res5[2], res5[3], res5[4], res5[5], res5[6], res5[7]);
 
@@ -76,15 +105,65 @@ int* res = (int*)&result;
     printf("%d %d %d %d %d %d %d %d\n",
     res7[0], res7[1], res7[2], res7[3], res7[4], res7[5], res7[6], res7[7]);
 
+
+      int* res9 = (int*)&result9;
+    printf("%d %d %d %d %d %d %d %d\n",
+    res9[0], res9[1], res9[2], res9[3], res9[4], res9[5], res9[6], res9[7]);
+
+        int* res10 = (int*)&result10;
+    printf("%d %d %d %d %d %d %d %d\n",
+    res10[0], res10[1], res10[2], res10[3], res10[4], res10[5], res10[6], res10[7]);
+
+        int* res11 = (int*)&result11;
+    printf("%d %d %d %d %d %d %d %d\n",
+    res11[0], res11[1], res11[2], res11[3], res11[4], res11[5], res11[6], res11[7]);
+
+        int* res12 = (int*)&result12;
+    printf("%d %d %d %d %d %d %d %d\n",
+    res12[0], res12[1], res12[2], res12[3], res12[4], res12[5], res12[6], res12[7]);
+
+        int* res13 = (int*)&result13;
+    printf("%d %d %d %d %d %d %d %d\n",
+    res13[0], res13[1], res13[2], res13[3], res13[4], res13[5], res13[6], res13[7]);
+
+        int* res14 = (int*)&result14;
+    printf("%d %d %d %d %d %d %d %d\n",
+    res14[0], res14[1], res14[2], res14[3], res14[4], res14[5], res14[6], res14[7]);
+
+        int* res15 = (int*)&result15;
+    printf("%d %d %d %d %d %d %d %d\n",
+    res15[0], res15[1], res15[2], res15[3], res15[4], res15[5], res15[6], res15[7]);
+
+        int* res16 = (int*)&result16;
+    printf("%d %d %d %d %d %d %d %d\n",
+    res16[0], res16[1], res16[2], res16[3], res16[4], res16[5], res16[6], res16[7]);
+         int* res17 = (int*)&result17;
+    printf("%d %d %d %d %d %d %d %d\n",
+    res17[0], res17[1], res17[2], res17[3], res17[4], res17[5], res17[6], res17[7]);
+
+        int* res18 = (int*)&result18;
+    printf("%d %d %d %d %d %d %d %d\n",
+    res18[0], res18[1], res18[2], res18[3], res18[4], res18[5], res18[6], res18[7]);
+
+        int* res19 = (int*)&result19;
+    printf("%d %d %d %d %d %d %d %d\n",
+    res19[0], res19[1], res19[2], res19[3], res19[4], res19[5], res19[6], res19[7]);
+
+        int* res20 = (int*)&result20;
+    printf("%d %d %d %d %d %d %d %d\n",
+    res20[0], res20[1], res20[2], res20[3], res20[4], res20[5], res20[6], res20[7]);
+
+
+
+
  auto end_time = chrono::high_resolution_clock::now();
         cout <<"The time in microseconds is"<< chrono::duration_cast<chrono::microseconds>(end_time - start_time).count() << ":"<<endl;
         double j= chrono::duration_cast<chrono::microseconds>(end_time - start_time).count();
         double k= (j/1000000);
-        double output = 1152 * (1/(10*k));
-        cout<<"Total number of Gflops"<<output<<endl;
+        double output = 2688 * (1/(10*k));
+        cout<<"Total number of GIops"<<output<<endl;
 
 }
         return 0;
 
-
-}
+                                               
