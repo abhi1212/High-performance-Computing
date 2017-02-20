@@ -38,7 +38,7 @@ int main(void)
     __m256 result17= _mm256_set_ps(0.0, 0.0, 0.0, 0.0, 0.0,0.0,0.0,0.0);
     __m256 result18= _mm256_set_ps(0.0, 0.0, 0.0, 0.0, 0.0,0.0,0.0,0.0);
     __m256 result19= _mm256_set_ps(0.0, 0.0, 0.0, 0.0, 0.0,0.0,0.0,0.0);
-     __m256 result20= _mm256_set_ps(0.0, 0.0, 0.0, 0.0, 0.0,0.0,0.0,0.0);
+    __m256 result20= _mm256_set_ps(0.0, 0.0, 0.0, 0.0, 0.0,0.0,0.0,0.0);
     __m256 result21= _mm256_set_ps(0.0, 0.0, 0.0, 0.0, 0.0,0.0,0.0,0.0);
     __m256 result22= _mm256_set_ps(0.0, 0.0, 0.0, 0.0, 0.0,0.0,0.0,0.0);
     __m256 result23= _mm256_set_ps(0.0, 0.0, 0.0, 0.0, 0.0,0.0,0.0,0.0);
@@ -65,7 +65,7 @@ int main(void)
            result7  = _mm256_fmadd_ps(evens,  result6, vecc);
            result8  = _mm256_fmadd_ps(evens,  result4, vecc);
            result9  = _mm256_fmadd_ps(evens,  odds, vecc);
-            result10   = _mm256_fmadd_ps(result2, odds, vecc);
+           result10   = _mm256_fmadd_ps(result2, odds, vecc);
            result11  = _mm256_fmadd_ps(result3, odds, vecc);
            result12  = _mm256_fmadd_ps(evens,  result, vecc);
            result13  = _mm256_fmadd_ps(evens,  result1, vecc);
@@ -75,7 +75,7 @@ int main(void)
            result17  = _mm256_fmadd_ps(evens,  result6, vecc);
            result18  = _mm256_fmadd_ps(evens,  result4, vecc);
            result19  = _mm256_fmadd_ps(evens,  odds, vecc);
-             result20  = _mm256_fmadd_ps(evens,  result1, vecc);
+           result20  = _mm256_fmadd_ps(evens,  result1, vecc);
            result21  = _mm256_fmadd_ps(evens,  result5, vecc);
            result22  = _mm256_fmadd_ps(evens,  result6, vecc);
            result23  = _mm256_fmadd_ps(evens,  result4, vecc);
@@ -92,9 +92,9 @@ int main(void)
       auto end_time = chrono::high_resolution_clock::now();
 
 
-     int* res = (int*)&result;
-     printf("%d %d %d %d %d %d %d %d\n",
-     res[0], res[1], res[2], res[3], res[4], res[5], res[6], res[7]);
+    int* res = (int*)&result;
+    printf("%d %d %d %d %d %d %d %d\n",
+    res[0], res[1], res[2], res[3], res[4], res[5], res[6], res[7]);
 
     int* res1 = (int*)&result1;
     printf("%d %d %d %d %d %d %d %d\n",
@@ -112,7 +112,7 @@ int main(void)
     printf("%d %d %d %d %d %d %d %d\n",
     res4[0], res4[1], res4[2], res4[3], res4[4], res4[5], res4[6], res4[7]);
 
-   int* res5 = (int*)&result5;
+    int* res5 = (int*)&result5;
     printf("%d %d %d %d %d %d %d %d\n",
     res5[0], res5[1], res5[2], res5[3], res5[4], res5[5], res5[6], res5[7]);
 
@@ -120,7 +120,7 @@ int main(void)
     printf("%d %d %d %d %d %d %d %d\n",
     res6[0], res6[1], res6[2], res6[3], res6[4], res6[5], res6[6], res6[7]);
 
-     int* res7 = (int*)&result7;
+    int* res7 = (int*)&result7;
     printf("%d %d %d %d %d %d %d %d\n",
     res7[0], res7[1], res7[2], res7[3], res7[4], res7[5], res7[6], res7[7]);
 
@@ -132,15 +132,15 @@ int main(void)
     printf("%d %d %d %d %d %d %d %d\n",
     res9[0], res9[1], res9[2], res9[3], res9[4], res9[5], res9[6], res9[7]);
 
-     int* res10 = (int*)&result10;
-     printf("%d %d %d %d %d %d %d %d\n",
-     res10[0], res10[1], res10[2], res10[3], res10[4], res10[5], res10[6], res10[7]);
+    int* res10 = (int*)&result10;
+    printf("%d %d %d %d %d %d %d %d\n",
+    res10[0], res10[1], res10[2], res10[3], res10[4], res10[5], res10[6], res10[7]);
 
     int* res11 = (int*)&result11;
     printf("%d %d %d %d %d %d %d %d\n",
     res11[0], res11[1], res11[2], res11[3], res11[4], res11[5], res11[6], res11[7]);
 
-  int* res12 = (int*)&result12;
+    int* res12 = (int*)&result12;
     printf("%d %d %d %d %d %d %d %d\n",
     res12[0], res12[1], res12[2], res12[3], res12[4], res12[5], res12[6], res12[7]);
 
@@ -152,7 +152,7 @@ int main(void)
     printf("%d %d %d %d %d %d %d %d\n",
     res14[0], res14[1], res14[2], res14[3], res14[4], res14[5], res14[6], res14[7]);
 
-   int* res15 = (int*)&result15;
+    int* res15 = (int*)&result15;
     printf("%d %d %d %d %d %d %d %d\n",
     res15[0], res15[1], res15[2], res15[3], res15[4], res15[5], res15[6], res15[7]);
 
@@ -188,15 +188,15 @@ int main(void)
     printf("%d %d %d %d %d %d %d %d\n",
     res23[0], res23[1], res23[2], res23[3], res23[4], res23[5], res23[6], res23[7]);
 
- int* res24 = (int*)&result24;
+    int* res24 = (int*)&result24;
     printf("%d %d %d %d %d %d %d %d\n",
     res24[0], res24[1], res24[2], res24[3], res24[4], res24[5], res24[6], res24[7]);
 
-   int* res25 = (int*)&result25;
+    int* res25 = (int*)&result25;
     printf("%d %d %d %d %d %d %d %d\n",
     res25[0], res25[1], res25[2], res25[3], res25[4], res25[5], res25[6], res25[7]);
 
-     int* res26 = (int*)&result26;
+    int* res26 = (int*)&result26;
     printf("%d %d %d %d %d %d %d %d\n",
     res26[0], res26[1], res26[2], res26[3], res26[4], res26[5], res26[6], res26[7]);
 
