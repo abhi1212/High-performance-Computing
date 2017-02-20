@@ -32,7 +32,7 @@
            __m256i result9 = _mm256_set_epi32(0, 0, 0, 0, 0, 0, 0, 0);
            __m256i result10 = _mm256_set_epi32(0, 0, 0, 0, 0, 0, 0, 0);
            __m256i result11 = _mm256_set_epi32(0, 0, 0, 0, 0, 0, 0, 0);
-            __m256i result12 = _mm256_set_epi32(0, 0, 0, 0, 0, 0, 0, 0);
+           __m256i result12 = _mm256_set_epi32(0, 0, 0, 0, 0, 0, 0, 0);
            __m256i result13 = _mm256_set_epi32(0, 0, 0, 0, 0, 0, 0, 0);
            __m256i result14 = _mm256_set_epi32(0, 0, 0, 0, 0, 0, 0, 0);
            __m256i result15 = _mm256_set_epi32(0, 0, 0, 0, 0, 0, 0, 0);
@@ -43,13 +43,13 @@
            __m256i result19 = _mm256_set_epi32(0, 0, 0, 0, 0, 0, 0, 0);
            __m256i result20 = _mm256_set_epi32(0, 0, 0, 0, 0, 0, 0, 0);
 
- cout << chrono::high_resolution_clock::period::den << endl;
+           cout << chrono::high_resolution_clock::period::den << endl;
                      auto start_time = chrono::high_resolution_clock::now();
 
                          for (i=0; i < 100000000; i++)
 
       {
-             result   =   _mm256_add_epi32 (mask, mask1);
+            result   =   _mm256_add_epi32 (mask, mask1);
             result1  =  _mm256_add_epi32 (mask2, mask3);
             result2  =  _mm256_mul_epi32 (mask1, mask2);
             result3  =  _mm256_add_epi32 (result1, mask2);
@@ -61,13 +61,13 @@
             result9   =  _mm256_add_epi32 (mask, mask1);
             result10  =  _mm256_add_epi32 (result6, mask3);
             result11  =  _mm256_mul_epi32 (mask1, result7);
-             result12  =  _mm256_add_epi32 (mask, mask1);
+            result12  =  _mm256_add_epi32 (mask, mask1);
             result13  =  _mm256_add_epi32 (result9, mask3);
             result14  =  _mm256_mul_epi32 (mask1, result10);
-             result15  =  _mm256_add_epi32 (result12, mask1);
+            result15  =  _mm256_add_epi32 (result12, mask1);
             result16  =  _mm256_add_epi32 (result13, mask3);
             result17  =  _mm256_mul_epi32 (mask1, result12);
-              result18  =  _mm256_add_epi32 (result15, mask1);
+            result18  =  _mm256_add_epi32 (result15, mask1);
             result19  =  _mm256_add_epi32 (result16, mask3);
             result20  =  _mm256_mul_epi32 (mask1, result15);
 
