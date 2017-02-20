@@ -43,7 +43,7 @@
            __m256i result19 = _mm256_set_epi32(0, 0, 0, 0, 0, 0, 0, 0);
            __m256i result20 = _mm256_set_epi32(0, 0, 0, 0, 0, 0, 0, 0);
 
-             cout << chrono::high_resolution_clock::period::den << endl;
+ cout << chrono::high_resolution_clock::period::den << endl;
                      auto start_time = chrono::high_resolution_clock::now();
 
                          for (i=0; i < 100000000; i++)
@@ -90,8 +90,9 @@ int* res = (int*)&result;
     printf("%d %d %d %d %d %d %d %d\n",
     res3[0], res3[1], res3[2], res3[3], res3[4], res3[5], res3[6], res3[7]);
 
+
     int* res4 = (int*)&result4;
-     printf("%d %d %d %d %d %d %d %d\n",
+    printf("%d %d %d %d %d %d %d %d\n",
     res4[0], res4[1], res4[2], res4[3], res4[4], res4[5], res4[6], res4[7]);
    int* res5 = (int*)&result5;
     printf("%d %d %d %d %d %d %d %d\n",
@@ -137,7 +138,8 @@ int* res = (int*)&result;
         int* res16 = (int*)&result16;
     printf("%d %d %d %d %d %d %d %d\n",
     res16[0], res16[1], res16[2], res16[3], res16[4], res16[5], res16[6], res16[7]);
-         int* res17 = (int*)&result17;
+                                                           
+  int* res17 = (int*)&result17;
     printf("%d %d %d %d %d %d %d %d\n",
     res17[0], res17[1], res17[2], res17[3], res17[4], res17[5], res17[6], res17[7]);
 
@@ -166,4 +168,6 @@ int* res = (int*)&result;
 }
         return 0;
 
-                                               
+
+}
+                                          
