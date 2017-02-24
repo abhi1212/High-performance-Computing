@@ -1,0 +1,80 @@
+#include <stdio.h>
+#include <time.h>
+#include <immintrin.h>
+#include <sys/time.h>
+#include <omp.h>
+#include <chrono>
+#include<iostream>
+using namespace std;
+
+int main(void)
+ {
+
+    int j;
+    int y=0;
+    int *next;
+    int *random;
+    int *array;
+    uint32_t size=500;
+    uint32_t size_bytes= size *4;
+    next =(int*) malloc(size*sizeof(int));
+    random =(int*) malloc(size*sizeof(int));
+    array=(int*) malloc(size*sizeof(int));
+
+    int current;
+
+    uint32_t i;
+
+    for(i=0; i<size;i++)
+     {
+          next[i]= i+1;
+     }
+
+
+    auto start_time = chrono::high_resolution_clock::now();
+
+    for(i=0;i<size;i++)
+    {
+      current=next[i];
+
+    }
+
+    auto end_time = chrono::high_resolution_clock::now();
+
+    cout <<"The time in microseconds is "<< chrono::duration_cast<chrono::microseconds>(end_time - start_time).count()<<endl ;
+
+    for(i=0; i<size;i++)
+    {
+          random[i]= i;
+    }
+
+
+   //cout<<"Size is"<<size;
+   auto start_time1 = chrono::high_resolution_clock::now();
+
+   while(size>1)
+    {
+         int x= random[rand()%size];
+    //     cout<< "X value are"<<x<<endl;
+
+      //   cout<<"Random values are"<<random[x]<<endl;
+
+         cout<<"Random array values are"<< random[x]<<random[size]<<endl;
+
+         size= size-1;
+         array[y]=random[x];
+        cout<<"Size is"<<size<<endl;
+       //  cout<<"Value of array y and x is"<<array[y]<<x<<endl;
+         y=random[x];
+         random[x] =random[size-1];
+
+
+    }
+
+   auto end_time1 = chrono::high_resolution_clock::now();
+   cout <<"The time in microseconds is "<< chrono::duration_cast<chrono::microseconds>(end_time1 - start_time1).count()<<endl ;
+
+
+   return 0;
+ }
+
