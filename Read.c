@@ -20,9 +20,9 @@ using namespace std;
 
    // printf("array values are %f\n%f\n", array[0], array[5]);
 
-   for(j=0; j<(size/8); j=j+8)
+   for(j=0; j<(size); j=j+8)
      {
-      val= _mm256_loadu_ps(&array[j]);
+      val= _mm256_load_ps(&array[j]);
       accum= _mm256_add_ps(val, accum);
      }
 
@@ -34,6 +34,7 @@ using namespace std;
   return accum;
 
 }
+
 int main(void)
  {
 
@@ -41,9 +42,10 @@ int main(void)
    {
     int j;
     float *array;
-    uint32_t size=5000000;
+    uint32_t size=50000000;
     uint32_t size_bytes= size *4;
-     array =(float*) malloc(size*sizeof(float));
+     int rc=  posix_memalign((void**)&array, 32, size*sizeof(int));
+   // array =(float*) malloc(size*sizeof(float));
     double bandwidth= 0;
     double calculation=0;
 
@@ -78,9 +80,11 @@ int main(void)
    //  cout<<"Calculation is " <<calculation;
      bandwidth= (size_bytes/calculation);
     cout<<" The total bandwidth is"<< bandwidth<<"GBs";
-  }
 
-return 0
+
 }
 
+}
+        return 0;
 
+ }
