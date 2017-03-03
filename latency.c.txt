@@ -25,15 +25,15 @@ int main(void)
 
     uint32_t i;
 
-    for(i=0; i<size;i++)
+    for(i=0; i<size;i++)     // Initiliaize the array
      {
           next[i]= i+1;
      }
 
 
-    auto start_time = chrono::high_resolution_clock::now();
+    auto start_time = chrono::high_resolution_clock::now();          // Begin the Timer
 
-    for(i=0;i<size;i++)
+    for(i=0;i<size;i++)                                               // Traverse through the array as if it is a linked list
     {
       current=next[i];
 
@@ -52,23 +52,15 @@ int main(void)
    //cout<<"Size is"<<size;
    auto start_time1 = chrono::high_resolution_clock::now();
 
+
    while(size>1)
     {
-         int x= random[rand()%size];
-    //     cout<< "X value are"<<x<<endl;
-
-      //   cout<<"Random values are"<<random[x]<<endl;
-
-         cout<<"Random array values are"<< random[x]<<random[size]<<endl;
-
-         size= size-1;
-         array[y]=random[x];
-        cout<<"Size is"<<size<<endl;
-       //  cout<<"Value of array y and x is"<<array[y]<<x<<endl;
-         y=random[x];
-         random[x] =random[size-1];
-
-
+         int x= random[rand()%size];                    // Randomly select any value from array
+         size= size-1;                                  // Decrease the size
+         array[y]=random[x];                            // Insert that element in an auxillary array
+         y=random[x];                                   // Use that element to as an index for next time
+         random[x] =random[size-1];                     // Like a priority queue take the last element and insert it in the place of
+                                                           recently used
     }
 
    auto end_time1 = chrono::high_resolution_clock::now();
