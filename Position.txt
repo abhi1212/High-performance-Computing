@@ -1,0 +1,137 @@
+#include <stdio.h>
+#include <time.h>
+#include <immintrin.h>
+#include <sys/time.h>
+#include <omp.h>
+#include <chrono>
+#include <iostream>
+using namespace std;
+uint32_t posn(int random[], uint32_t size,uint32_t threads,uint32_t scheduling);
+int postheta(int random[],uint32_t size,uint32_t threads,uint32_t scheduling);
+
+int main(int argc, char** argv)
+ {
+
+        if (argc!= 4){
+                cout<<"Not enough parameters";
+                return 0;
+        }
+
+
+        uint32_t threads= atoi(argv[2]);
+        cout<<"Number of threads are"<< threads<<endl<<endl;
+
+        uint32_t size= atoi(argv[1]);
+        cout<<"Size is "<< size << endl<<endl;
+
+        uint32_t scheduling=atoi(argv[3]);
+        cout<<"Scheduling policy is" <<scheduling<<endl<<endl;
+
+        int *random;
+        int *array;
+        random =(int*) malloc(size*sizeof(int));
+        array=(int*) malloc(size*sizeof(int));
+        uint32_t csize=size;
+        int current;
+        uint32_t i;
+        int k=0;
+        uint32_t val;
+        int min=0;
+        /*Initialize the random array with zero*/
+        for(i=0; i<size;i++){
+                random[i]= 0;
+                array[i]=i;
+        }
+		 while(csize>0){
+                int x= rand()%csize;
+                random[k]=array[x];
+                array[x]= array[csize-1];
+                csize--;
+                k++;
+        }
+
+        uint32_t pos= posn(random,size,threads,scheduling);
+        uint32_t pos1=postheta(random,size,threads,scheduling);
+        cout<<"The position of the element using theta n work is"<< pos<<endl;
+        cout<<"The position of the element using theta pos work is"<< pos1<<endl;
+
+ }
+
+
+
+        uint32_t posn(int random[],uint32_t size, uint32_t threads, uint32_t scheduling)
+        {
+                uint32_t i;
+                uint32_t flag=0;
+                uint32_t position=size;
+                uint32_t element=100;
+                random[800]=100;
+                random[2100]=100;
+
+
+                omp_set_dynamic(0);     // Explicitly disable dynamic teams
+                omp_set_num_threads(threads); // Use 4 threads for all consecutive parallel regions
+                auto start_time = chrono::high_resolution_clock::now();
+                #pragma omp parallel for  reduction(min:position) schedule(static)
+                for(i=0; i<size;i++)
+                {
+
+                        if(random[i]==element&&(i<position))
+                        {
+                                position=i;
+                        }
+                }
+                auto end_time = chrono::high_resolution_clock::now();
+                cout <<"The time in microseconds for finding the first element using theta n work is "<< chrono::duration_cast<chrono::microseconds>(end_time - start_time).count()<<endl ;
+                return position;
+
+        }
+
+
+		 int postheta(int random[],uint32_t size, uint32_t threads, uint32_t scheduling)
+        {
+
+                uint32_t i=0;
+                uint32_t j=0;
+                uint32_t flag=0;
+                uint32_t element=100;
+                uint32_t position=size;
+                uint32_t k=0;
+                random[800]=100;
+                random[2100]=100;
+
+                auto start_time_1 = chrono::high_resolution_clock::now();
+                for(i=10;i<size;i=i*2)
+                {
+                                omp_set_dynamic(0);     // Explicitly disable dynamic teams
+                                omp_set_num_threads(threads); // Use 4 threads for all consecutive parallel regions
+
+                                #pragma omp parallel for  reduction(min:position) schedule(static)  shared(element)
+                                for(j=k; j<i; j++)
+                                {
+
+                                         if(random[j]==element&&(j<position))
+                                        {
+                                                 position=j;
+                                                 flag=1;
+
+
+                                        }
+                                }
+
+                                if(flag==1)
+                                {
+                                        break;
+                                }
+
+                                k=i;
+
+
+                }
+                auto end_time_1 = chrono::high_resolution_clock::now();
+                cout <<"The time in microseconds for finding the element using theta pos work is "<< chrono::duration_cast<chrono::microseconds>(end_time_1 - start_time_1).count()<<endl ;
+
+                return position;
+
+
+        }                                 
