@@ -1,0 +1,103 @@
+#include <stdio.h>
+#include <time.h>
+#include <immintrin.h>
+#include <sys/time.h>
+#include <omp.h>
+#include <chrono>
+#include <iostream>
+using namespace std;
+
+int main(int argc, char** argv)
+ {
+
+        if (argc!= 4){
+                cout<<"Not enough parameters";
+                return 0;
+        }
+
+
+        uint32_t threads= atoi(argv[2]);
+        cout<<"Number of threads are"<< threads<<endl<<endl;
+
+        uint32_t size= atoi(argv[1]);
+        cout<<"Size is "<< size << endl<<endl;
+
+        uint32_t scheduling=atoi(argv[3]);
+        cout<<"Scheduling policy is" <<scheduling<<endl<<endl;
+
+        int *random;
+        int *array;
+        random =(int*) malloc(size*sizeof(int));
+        array=(int*) malloc(size*sizeof(int));
+        uint32_t csize=size;
+        int current;
+        uint32_t i;
+        int k=0;
+        uint32_t val;
+        int min_val=0;
+
+
+        /*Initialize the random array with zero*/
+        for(i=0; i<size;i++){
+                random[i]= 0;
+                array[i]=i;
+        }
+
+		 while(csize>0){
+                int x= rand()%csize;
+                random[k]=array[x];
+                array[x]= array[csize-1];
+                csize--;
+                k++;
+        }
+
+      /* We have generated a random array */
+
+        switch(scheduling){
+
+                case 1:
+                        omp_set_schedule(omp_sched_static,0);
+                        break;
+                case 2:
+                        omp_set_schedule(omp_sched_dynamic,1);
+                        break;
+                case 3:
+                        omp_set_schedule(omp_sched_dynamic,1000);
+                        break;
+                case 4:
+                        omp_set_schedule(omp_sched_dynamic,100000);
+                        break;
+                default:
+                        cout<<"Set a proper scheduling parameter"<<endl;
+
+                return 0;
+        }
+
+
+        omp_set_dynamic(0);     // Explicitly disable dynamic teams
+        omp_set_num_threads(threads); // Use 4 threads for all consecutive parallel regions
+        min_val= size;
+
+        auto start_time = chrono::high_resolution_clock::now();
+        #pragma omp parallel for reduction(min:min_val) schedule(runtime)
+
+		
+        for(i=0;i<size;i++)
+        {
+                if(random[i]<min_val)
+                {
+                        min_val= random[i];
+                }
+        }
+
+        auto end_time = chrono::high_resolution_clock::now();
+        cout<<"Min is"<<min_val<<endl;
+        cout <<"The time in microseconds required for finding the min element is "<< chrono::duration_cast<chrono::microseconds>(end_time - start_time).count()<<endl ;
+
+
+  }
+
+
+
+
+
