@@ -1,0 +1,108 @@
+#include <stdio.h>
+#include <time.h>
+#include <immintrin.h>
+#include <sys/time.h>
+#include <omp.h>
+#include <chrono>
+#include <iostream>
+using namespace std;
+
+int main(int argc, char** argv)
+ {
+
+        if (argc!= 4){
+                cout<<"Not enough parameters";
+                return 0;
+        }
+
+
+        uint32_t m= atoi(argv[1]);
+        cout<<"m is "<<m<<endl<<endl;
+
+        uint32_t n = atoi(argv[2]);
+        cout<<"n is "<< n << endl<<endl;
+
+        uint32_t k =atoi(argv[3]);
+        cout<<"K is"<<k<<endl<<endl;
+
+        int *image[m];
+        int *kernel[k];
+        int *output[m];
+        int i,j,c,d,mm,nn,ii,jj;
+        int kernelcenterX= k/2;
+        int kernelcenterY= k/2;
+        for (i=0; i<m; i++)
+        {
+                 image[i] = (int *)malloc(n * sizeof(int));
+        }
+
+        for (i=0; i<m; i++)
+        {
+                 output[i] = (int *)malloc(n * sizeof(int));
+        }
+
+	    for (i=0; i<k; i++)
+        {
+                 kernel[i] = (int *)malloc(k * sizeof(int));
+        }
+
+
+        for(i=0;i<m;i++)
+        {
+                for(j=0;j<n;j++)
+                {
+                        image[i][j]=1;
+                }
+        }
+
+
+        for(i=0;i<k;i++)
+        {
+                for(j=0;j<k;j++)
+                {
+                        kernel[i][j]=1;
+                }
+        }
+
+
+
+        omp_set_dynamic(0);     // Explicitly disable dynamic teams
+        omp_set_num_threads(4); // Use 4 threads for all consecutive parallel regions
+        auto start_time_1 = chrono::high_resolution_clock::now();
+  //    #pragma omp parallel for schedule(runtime) collapse(3)
+ for(i=0;i<m;i++)
+        {
+
+                for(j=0;j<n;j++)
+                {
+
+                        for(c=0; c<k; c++)
+                        {
+                                mm = k - 1 - c;
+
+                                for(d=0; d<k;d++)
+                                {
+                                        nn = k - 1 - d;  // column index of flipped kernel
+                                        ii = i + (c - kernelcenterY);
+                                        jj = j + (d - kernelcenterX);
+                                        if( ii >= 0 && ii < m && jj >= 0 && jj < n )
+                                        output[i][j] += image[ii][jj] * kernel[mm][nn];
+                                }
+                        }
+                }
+        }
+
+        auto end_time_1 = chrono::high_resolution_clock::now();
+        cout <<"The time in microseconds "<< chrono::duration_cast<chrono::microseconds>(end_time_1 - start_time_1).count()<<endl ;
+
+
+        for(i=0;i<m;i++)
+        {
+                for(j=0;j<n;j++)
+                {
+                //      cout<<output[i][j]<<endl;
+                }
+        }
+
+
+ }
