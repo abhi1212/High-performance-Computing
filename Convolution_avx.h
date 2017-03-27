@@ -1,4 +1,4 @@
-	#include <stdio.h>
+#include <stdio.h>
 #include <time.h>
 #include <immintrin.h>
 #include <sys/time.h>
@@ -28,7 +28,6 @@ int main(int argc, char** argv)
         uint32_t block =atoi(argv[4]);
          cout<<"Block_Size is"<<block<<endl<<endl;
 
-        //int image[];
 
         //int rc=  posix_memalign((void**)&image, 32, m*sizeof(int));
         float *image[m];
@@ -43,8 +42,9 @@ int main(int argc, char** argv)
         int temp_columns=0;
         __m256 out = _mm256_set_ps(0,0,0,0,0,0,0,0);
         __m256 val =  _mm256_set_ps(0,0,0,0,0,0,0,0);
-         __m256 kern = _mm256_set_ps(0,0,0,0,0,0,0,0);
-		 for (i=0; i<m; i++)
+        __m256 kern = _mm256_set_ps(0,0,0,0,0,0,0,0);
+
+	    for (i=0; i<m; i++)
         {
                  image[i] = (float *)malloc(n * sizeof(float));
         }
@@ -89,7 +89,7 @@ int main(int argc, char** argv)
                         kernel[i][j]=1;
                 }
         }
-		 int counter=0;
+ int counter=0;
         omp_set_dynamic(0);     // Explicitly disable dynamic teams
         omp_set_num_threads(16); // Use 4 threads for all consecutive parallel region
 
@@ -98,57 +98,56 @@ int main(int argc, char** argv)
 
 for(i=0;i<100;i++)
 {
-
+        #pragma omp parallel for schedule(static,1000) collapse(2)  shared(temp_rows)
         for(int blockx=block;blockx<m; blockx=blockx+block)
         {
                 for(int blocky=block;blocky<n; blocky=blocky+block)
                 {
-                        for(int rows=temp_rows;rows<blockx;rows++)
+                        for(int rows=blockx-block;rows<blockx;rows++)
                         {
-                                for(int columns=temp_columns;columns<blocky;columns=columns+8)
+                                for(int columns=blocky-block;columns<blocky;columns=columns+8)
                                 {
-                                        val= _mm256_loadu_ps(image[columns]);
                                         for(int krows=0; krows<k; krows++)
                                         {
                                                 int mm = k - 1 - krows;
 
-                                                for(int kcolumns=0;kcolumns<k;kcolumns++)
+                                                for(int kcolumns=0;kcolumns<k;kcolumns=kcolumns+8)
                                                 {
-                                                        kern= _mm256_loadu_ps(kernel[kcolumns]);
                                                         int nn = k - 1 - kcolumns;  // column index of flipped kernel
+                                                        kern= _mm256_loadu_ps(&kernel[mm][nn]);
                                                         int ii = rows + (krows - kernelcenterY);
                                                         int jj = columns + (kcolumns - kernelcenterX);
-                                                        if( ii >= 0 && ii < m && jj >= 0 && jj < n )
-                                                        {
-                                                                //output[rows][columns] += image[ii][jj] * kernel[mm][nn]; //Fma
 
-																 out= out +_mm256_mul_ps(val,kern);
-                                                                cout<<"Output values are"<< out[0]<<endl;
-                                                                cout<<"Output values are"<< out[1]<<endl;
-                                                                cout<<"Output values are"<< out[2]<<endl;
-                                                                cout<<"Output values are"<< out[3]<<endl;
-                                                                /*cout<<"Values of ii is"<<ii<<endl;
-                                                                cout<<"Values of jj is"<<jj<<endl;
+                                                        if( ii >= 0 && ii < m && jj >= 0 && jj < n )
+ //output[rows][columns] += image[ii][jj] * kernel[mm][nn]; //Fma
+                                                                val= _mm256_loadu_ps(&image[ii][jj]);
+
+                                                                out= out +_mm256_mul_ps(val,kern);
+                                                                /*cout<<"Output values 1  are"<< out[0]<<endl;
+                                                                cout<<"Output values 2 are"<< out[1]<<endl;
+                                                                cout<<"Output values 3 are"<< out[2]<<endl;
+                                                                cout<<"Output values 4 are"<< out[3]<<endl;
+
                                                                 cout<<"Values of mm is"<<mm<<endl;
                                                                 cout<<"Values of nn is"<<nn<<endl;
 
-                                                                cout<<"Values of image[ii][jj] is"<<image[ii][jj]<<endl;
+                                                                        cout<<"Values of image[ii][jj] is"<<image[ii][jj]<<endl;
                                                                 cout<<"Values of  kernel[mm][nn]"<< kernel[mm][nn]<<endl;
                                                                 cout<<"Values of rows is"<<rows<<endl;
                                                                 cout<<"Values of columns is"<<columns<<endl;
-                                                                cout<<"Values of  output[rows][columns] is"<< output[rows][columns]<<endl<<endl;
-                                                                counter++;*/
+                                                                cout<<"Values of  output[rows][columns] is"<< output[rows][columns]<<endl<<endl;*/
+                                                                counter++;
                                                         }
                                                 }
 
                                         }
-                                         _mm256_storeu_ps(output[columns], out);
+                                         _mm256_storeu_ps(&output[rows][columns], out);
                                 }
 
                         }
-                        temp_columns=blocky;
+
                 }
-                temp_rows=blockx;
+
         }
 }
 
@@ -156,26 +155,15 @@ for(i=0;i<100;i++)
 
 
         auto end_time_1 = chrono::high_resolution_clock::now();
-        cout <<"The time in microseconds "<< chrono::duration_cast<chrono::microseconds>(end_time_1 - start_time_1).count()<<endl ;
+        cout <<"The time in microseconds "<< chrono::duration_cast<chrono::microseconds>(end_time_1 - start_time_1).count() <<endl ;
 
         operation_time= (819/(k*k));
         mem_time= ((34*m*n)/ ((2*m*n)+ (k*k)));
-        float performance= ((m*n)/(chrono::duration_cast<chrono::microseconds>(end_time_1 - start_time_1).count()*0.1 ));
+        float performance= ((m*n)/(chrono::duration_cast<chrono::microseconds>(end_time_1 - start_time_1).count() * 0.1 ));
 
-		 cout<<"Performance for floating point operations "<<operation_time<<" Gigapixels/sec"<<endl;
+        cout<<"Performance for floating point operations "<<operation_time<<" Gigapixels/sec"<<endl;
         cout<<"Performance for Memory Transfer "<<mem_time<<" Gigapixels/sec"<<endl;
         cout<<"Actual performance is "<<performance<<" Gigapixels/sec"<<endl;
-
-
-        for(i=0;i<m;i++)
-        {
-                for(j=0;j<n;j++)
-                {
-                       cout<<"The output elements are"<< output[i][j]<<endl;
-
-                }
-        }
-
 
 
         cout<<"Counter values is"<<counter;
@@ -189,5 +177,4 @@ for(i=0;i<100;i++)
 
 
  }
--- INSERT --            
-		
+                                                        {	
