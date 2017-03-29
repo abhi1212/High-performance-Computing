@@ -22,14 +22,14 @@ __global__ void polynomial_expansion (float* poly, int degree,
                            int n, float* array,int iter)
 {
     int j;
- // for(j=0;j<iter;j++)
-  //{
+  for(j=0;j<iter;j++)
+  {
 //#pragma omp parallel for schedule(runtime)
     int i = blockIdx.x*blockDim.x + threadIdx.x;
    // printf("The values of i are %d\n",i);
     if(i<n){
     array[i] = polynomial (array[i], poly, degree);}
- //}
+ }
 }
 
 
@@ -136,7 +136,7 @@ int main (int argc, char* argv[]) {
   std::chrono::duration<double> totaltime = (end-begin);
 
   std::cerr<<array[0]<<std::endl;
-  std::cout<<std::fixed<<" For array size " << n <<" The total time required is "<<(totaltime.count())<<std::endl;
+  std::cout<<std::fixed<<" For array size " << n <<" The total time required is "<<(totaltime.count()/nbiter)<<std::endl;
 
   cudaFree(d_array);
   cudaFree(d_poly);
