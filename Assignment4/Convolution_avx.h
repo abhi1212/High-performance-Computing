@@ -42,12 +42,19 @@ int main(int argc, char** argv)
         int temp_columns=0;
         __m256 out = _mm256_set_ps(0,0,0,0,0,0,0,0);
         __m256 val =  _mm256_set_ps(0,0,0,0,0,0,0,0);
-        __m256 kern = _mm256_set_ps(0,0,0,0,0,0,0,0);
-
-	    for (i=0; i<m; i++)
+         __m256 kern = _mm256_set_ps(0,0,0,0,0,0,0,0);
+	    
+	      for (i=0; i<m; i++)
         {
                  image[i] = (float *)malloc(n * sizeof(float));
+                 if(image[i]==NULL)
+                {
+                        printf("Malloc failed");
+                        exit(0);
+                }
+        //      printf("Image address is %d\n", image[i]);
         }
+
 
         for (i=0; i<m; i++)
         {
@@ -59,7 +66,6 @@ int main(int argc, char** argv)
         {
                  kernel[i] = (float *)malloc(k * sizeof(float));
         }
-
 
         for(i=0;i<m;i++)
         {
@@ -81,7 +87,7 @@ int main(int argc, char** argv)
         }
 
 
-
+        
         for(i=0;i<k;i++)
         {
                 for(j=0;j<k;j++)
@@ -89,20 +95,21 @@ int main(int argc, char** argv)
                         kernel[i][j]=1;
                 }
         }
- int counter=0;
+
+        int counter=0;
         omp_set_dynamic(0);     // Explicitly disable dynamic teams
-        omp_set_num_threads(16); // Use 4 threads for all consecutive parallel region
+        omp_set_num_threads(16); // Use 16 threads for all consecutive parallel region
+
 
         auto start_time_1 = chrono::high_resolution_clock::now();
-
-
 for(i=0;i<100;i++)
 {
-        #pragma omp parallel for schedule(static,1000) collapse(2)  shared(temp_rows)
-        for(int blockx=block;blockx<m; blockx=blockx+block)
+        #pragma omp parallel for schedule(dynamic,1) collapse(2)  firstprivate(out,val,kernel)
+        for(int blockx=block;blockx<=m; blockx=blockx+block)
         {
-                for(int blocky=block;blocky<n; blocky=blocky+block)
+                for(int blocky=block;blocky<=n; blocky=blocky+block)
                 {
+ // std::cout<<"block: "<<blockx<<" "<<blocky<<" on iteration "<<i<<" @ "<<(chrono::high_resolution_clock::now()-start_time_1).count()<<std::endl;
                         for(int rows=blockx-block;rows<blockx;rows++)
                         {
                                 for(int columns=blocky-block;columns<blocky;columns=columns+8)
@@ -114,14 +121,15 @@ for(i=0;i<100;i++)
                                                 for(int kcolumns=0;kcolumns<k;kcolumns=kcolumns+8)
                                                 {
                                                         int nn = k - 1 - kcolumns;  // column index of flipped kernel
-                                                        kern= _mm256_loadu_ps(&kernel[mm][nn]);
+                                                        kern= _mm256_set1_ps(kernel[mm][nn]);
                                                         int ii = rows + (krows - kernelcenterY);
                                                         int jj = columns + (kcolumns - kernelcenterX);
 
                                                         if( ii >= 0 && ii < m && jj >= 0 && jj < n )
- //output[rows][columns] += image[ii][jj] * kernel[mm][nn]; //Fma
-                                                                val= _mm256_loadu_ps(&image[ii][jj]);
+                                                        {
+                                                                //output[rows][columns] += image[ii][jj] * kernel[mm][nn]; //Fma
 
+                                                                val= _mm256_loadu_ps(&image[ii][jj]);
                                                                 out= out +_mm256_mul_ps(val,kern);
                                                                 /*cout<<"Output values 1  are"<< out[0]<<endl;
                                                                 cout<<"Output values 2 are"<< out[1]<<endl;
@@ -136,13 +144,13 @@ for(i=0;i<100;i++)
                                                                 cout<<"Values of rows is"<<rows<<endl;
                                                                 cout<<"Values of columns is"<<columns<<endl;
                                                                 cout<<"Values of  output[rows][columns] is"<< output[rows][columns]<<endl<<endl;*/
-                                                                counter++;
+                                                                
                                                         }
                                                 }
 
                                         }
                                          _mm256_storeu_ps(&output[rows][columns], out);
-                                }
+                                }        out=  _mm256_set1_ps (0);
 
                         }
 
@@ -166,15 +174,4 @@ for(i=0;i<100;i++)
         cout<<"Actual performance is "<<performance<<" Gigapixels/sec"<<endl;
 
 
-        cout<<"Counter values is"<<counter;
-
-
-
-
-
-
-
-
-
- }
-                                                        {	
+}
