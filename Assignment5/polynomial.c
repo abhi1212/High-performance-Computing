@@ -22,14 +22,14 @@ __global__ void polynomial_expansion (float* poly, int degree,
                            int n, float* array,int iter)
 {
     int j;
-  for(j=0;j<iter;j++)
-  {
+
+
 //#pragma omp parallel for schedule(runtime)
     int i = blockIdx.x*blockDim.x + threadIdx.x;
    // printf("The values of i are %d\n",i);
     if(i<n){
     array[i] = polynomial (array[i], poly, degree);}
- }
+
 }
 
 
@@ -45,7 +45,6 @@ inline  void HandleError( cudaError_t err,
         exit( EXIT_FAILURE );
     }
 }
-
 int main (int argc, char* argv[]) {
 
   if(argc!=5)
@@ -68,9 +67,11 @@ int main (int argc, char* argv[]) {
 
   if(n%threadsperblock!=0)
   {
-        printf("Proper blocks are not allocated");
-        exit(0);
+        totalblocks= totalblocks+1;
+
   }
+   printf("Total blocks are %d\n",totalblocks);
+
 
   int size= sizeof(int);
  // printf("The total number of blocks are %d\n", totalblocks);
@@ -82,10 +83,10 @@ int main (int argc, char* argv[]) {
  HANDLE_ERROR( cudaMalloc((void **)&d_n, size));
  HANDLE_ERROR( cudaMalloc((void **)&d_degree, size));
  HANDLE_ERROR( cudaMalloc((void **)&d_nbiter, size));
-
-
+ 
 /* Declare arrays*/
- float* array = new float[n];
+
+  float* array = new float[n];
   if(array==NULL)
         {
                 printf("Malloc failed");
@@ -105,49 +106,41 @@ int main (int argc, char* argv[]) {
 
   float* d_array;
   float* d_poly;
+
   HANDLE_ERROR( cudaMalloc( (void**)&d_array, n * sizeof(float) ) );
   HANDLE_ERROR( cudaMalloc( (void**)&d_poly, (degree+1) * sizeof(float) ) );
 
-
+  cudaDeviceSynchronize();
 /* Copy the memory from Host to Device*/
    std::chrono::time_point<std::chrono::system_clock> begin, end;
 
 
-    HANDLE_ERROR( cudaMemcpy((void**)  d_array,array , n * sizeof(float),cudaMemcpyHostToDevice ) );
+   HANDLE_ERROR( cudaMemcpy((void**)  d_array,array , n * sizeof(float),cudaMemcpyHostToDevice ) );
+   HANDLE_ERROR(  cudaMemcpy((void**)  d_n, &n,size,cudaMemcpyHostToDevice ) );
+   HANDLE_ERROR(  cudaMemcpy((void**)  d_degree, &degree,size,cudaMemcpyHostToDevice ) );
+   HANDLE_ERROR(  cudaMemcpy((void**)  d_nbiter, &nbiter,size,cudaMemcpyHostToDevice ) );
+   HANDLE_ERROR( cudaMemcpy((void**)  d_array,array , n * sizeof(float),cudaMemcpyHostToDevice ) );
+   HANDLE_ERROR( cudaMemcpy((void**)   d_poly ,poly , (degree+1) * sizeof(float),cudaMemcpyHostToDevice ) );
 
-
-
-
-  HANDLE_ERROR(  cudaMemcpy((void**)  d_n, &n,size,cudaMemcpyHostToDevice ) );
-
-  HANDLE_ERROR(  cudaMemcpy((void**)  d_degree, &degree,size,cudaMemcpyHostToDevice ) );
-  HANDLE_ERROR(  cudaMemcpy((void**)  d_nbiter, &nbiter,size,cudaMemcpyHostToDevice ) );
-
-  HANDLE_ERROR( cudaMemcpy((void**)  d_array,array , n * sizeof(float),cudaMemcpyHostToDevice ) );
-  HANDLE_ERROR( cudaMemcpy((void**)   d_poly ,poly , (degree+1) * sizeof(float),cudaMemcpyHostToDevice ) );
+   cudaDeviceSynchronize();
 
    begin = std::chrono::system_clock::now();
-
+   for(int k=0 ;k<nbiter; k++){
    polynomial_expansion<<<totalblocks,threadsperblock>>>(d_poly,degree,n,d_array,nbiter);// We are supposed to call the function ibter times
+   }
    cudaDeviceSynchronize();
    end = std::chrono::system_clock::now();
+
     HANDLE_ERROR( cudaMemcpy((void**) array,d_array , n * sizeof(float),cudaMemcpyDeviceToHost ) );
 
   std::chrono::duration<double> totaltime = (end-begin);
 
   std::cerr<<array[0]<<std::endl;
-  std::cout<<std::fixed<<" For array size " << n <<" The total time required is "<<(totaltime.count()/nbiter)<<std::endl;
+  std::cout<<std::fixed<<" For array size " << n <<" The total time required is "<<(totaltime.count())<<std::endl;
 
   cudaFree(d_array);
   cudaFree(d_poly);
 
   return 0;
 }
-
-
-
-
-
-
-
-                                               
+                     
