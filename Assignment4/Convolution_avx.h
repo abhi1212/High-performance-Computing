@@ -30,9 +30,10 @@ int main(int argc, char** argv)
 
 
         //int rc=  posix_memalign((void**)&image, 32, m*sizeof(int));
-        float *image[m];
-        float *kernel[k];
-        float *output[m];
+         float** image= new float*[m];
+         float** kernel= new float*[k];
+         float** output= new float*[m];
+
         int i,j,c,d,mm,nn,ii,jj;
         int kernelcenterX= k/2;
         int kernelcenterY= k/2;
@@ -42,11 +43,11 @@ int main(int argc, char** argv)
         int temp_columns=0;
         __m256 out = _mm256_set_ps(0,0,0,0,0,0,0,0);
         __m256 val =  _mm256_set_ps(0,0,0,0,0,0,0,0);
-         __m256 kern = _mm256_set_ps(0,0,0,0,0,0,0,0);
-	    
-	      for (i=0; i<m; i++)
+        __m256 kern = _mm256_set_ps(0,0,0,0,0,0,0,0);
+	    for (i=0; i<m; i++)
         {
-                 image[i] = (float *)malloc(n * sizeof(float));
+                 image[i] =  new float[n];
+
                  if(image[i]==NULL)
                 {
                         printf("Malloc failed");
@@ -58,13 +59,13 @@ int main(int argc, char** argv)
 
         for (i=0; i<m; i++)
         {
-                 output[i] = (float *)malloc(n * sizeof(float));
+                 output[i] = new float[n];
         }
 
 
         for (i=0; i<k; i++)
         {
-                 kernel[i] = (float *)malloc(k * sizeof(float));
+                 kernel[i] = new float[k];
         }
 
         for(i=0;i<m;i++)
@@ -85,10 +86,8 @@ int main(int argc, char** argv)
 
                 }
         }
-
-
-        
-        for(i=0;i<k;i++)
+	
+	    for(i=0;i<k;i++)
         {
                 for(j=0;j<k;j++)
                 {
@@ -98,11 +97,13 @@ int main(int argc, char** argv)
 
         int counter=0;
         omp_set_dynamic(0);     // Explicitly disable dynamic teams
-        omp_set_num_threads(16); // Use 16 threads for all consecutive parallel region
+        omp_set_num_threads(16); // Use 4 threads for all consecutive parallel region
+
+
 
 
         auto start_time_1 = chrono::high_resolution_clock::now();
-for(i=0;i<100;i++)
+for(i=0;i<10;i++)
 {
         #pragma omp parallel for schedule(dynamic,1) collapse(2)  firstprivate(out,val,kernel)
         for(int blockx=block;blockx<=m; blockx=blockx+block)
@@ -128,8 +129,7 @@ for(i=0;i<100;i++)
                                                         if( ii >= 0 && ii < m && jj >= 0 && jj < n )
                                                         {
                                                                 //output[rows][columns] += image[ii][jj] * kernel[mm][nn]; //Fma
-
-                                                                val= _mm256_loadu_ps(&image[ii][jj]);
+  val= _mm256_loadu_ps(&image[ii][jj]);
                                                                 out= out +_mm256_mul_ps(val,kern);
                                                                 /*cout<<"Output values 1  are"<< out[0]<<endl;
                                                                 cout<<"Output values 2 are"<< out[1]<<endl;
@@ -144,7 +144,7 @@ for(i=0;i<100;i++)
                                                                 cout<<"Values of rows is"<<rows<<endl;
                                                                 cout<<"Values of columns is"<<columns<<endl;
                                                                 cout<<"Values of  output[rows][columns] is"<< output[rows][columns]<<endl<<endl;*/
-                                                                
+                                                                counter++;
                                                         }
                                                 }
 
@@ -159,9 +159,6 @@ for(i=0;i<100;i++)
         }
 }
 
-
-
-
         auto end_time_1 = chrono::high_resolution_clock::now();
         cout <<"The time in microseconds "<< chrono::duration_cast<chrono::microseconds>(end_time_1 - start_time_1).count() <<endl ;
 
@@ -174,4 +171,26 @@ for(i=0;i<100;i++)
         cout<<"Actual performance is "<<performance<<" Gigapixels/sec"<<endl;
 
 
-}
+/*      for(i=0;i<m;i++)
+        {
+                for(j=0;j<n;j++)
+                {
+                       cout<<"The output elements are"<< output[i][j]<<endl;
+
+                }
+        }*/
+
+
+
+        cout<<"Counter values is"<<counter;
+
+
+
+
+
+
+
+
+
+ }
+                                                           
