@@ -171,6 +171,7 @@ for(i=0;i<10;i++)
         cout<<"Actual performance is "<<performance<<" Gigapixels/sec"<<endl;
 
 
+<<<<<<< HEAD:Assignment4/Convolution_avx.h
 /*      for(i=0;i<m;i++)
         {
                 for(j=0;j<n;j++)
@@ -194,3 +195,6 @@ for(i=0;i<10;i++)
 
  }
                                                            
+=======
+}
+>>>>>>> cbaf007167ca517281bac036a7764e3d83e92ca3:Assignment4/Convolution_avx.c
