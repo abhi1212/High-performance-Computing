@@ -1,0 +1,170 @@
+#include <iostream>
+#include <chrono>
+#include "cuda_runtime.h"
+#include "cuda.h"
+#include "device_launch_parameters.h"
+#define HANDLE_ERROR( err ) (HandleError( err, __FILE__, __LINE__ ))
+
+
+
+__device__ float polynomial (float x, float* poly, int degree) {
+  float out = 0.;
+  float xtothepowerof = 1.;
+  for (int i=0; i<=degree; ++i) {
+    out += xtothepowerof*poly[i];
+    xtothepowerof *= x;
+   // printf("Out values are %f\n",out);
+  }
+  return out;
+}
+
+__global__ void polynomial_expansion (float* poly, int degree,
+                           int n, float* array,int offset)
+{
+    int j;
+    int i = offset+ blockIdx.x*blockDim.x + threadIdx.x;
+    if(i<n){
+    array[i] = polynomial (array[i], poly, degree);}
+
+}
+
+
+
+
+
+inline  void HandleError( cudaError_t err,
+                         const char *file,
+                         int line ) {
+    if (err != cudaSuccess) {
+
+        printf( "%s in %s at line %d\n", cudaGetErrorString( err ),
+                file, line );
+        exit( EXIT_FAILURE );
+    }
+}
+
+
+int main (int argc, char* argv[]) {
+
+  if(argc!=6)
+  {
+        printf("Not enough arguments");
+        return 0;
+  }
+
+/* Take command line arguments*/
+
+  int n = atoi(argv[1]); //TODO: atoi is an unsafe function
+  printf("The size of array is %d\n",n);
+  int degree = atoi(argv[2]);
+  printf("The degree is %d\n",degree);
+  int nbiter = atoi(argv[3]);
+  printf("The iterations are %d\n",nbiter);
+  int blocksize=atoi(argv[4]);
+  printf("Threads per block are %d\n",threadsperblock);
+  int totalblocks= (int) n/threadsperblock;
+  int streams= atoi(argv[5]);
+
+  if(n%blocksize!=0)
+  {
+        totalblocks= totalblocks+1;
+
+  }
+   printf("Total blocks are %d\n",totalblocks);
+
+    const int streamSize = n / streams;
+    const int streamBytes = streamSize * sizeof(float);
+
+
+    int size= sizeof(int);
+ // printf("The total number of blocks are %d\n", totalblocks);
+
+ /* Initialize and allocate memory for device*/
+ float *array;
+ float *poly;
+ int *d_n;
+ int *d_degree;
+ int *d_nbiter;
+ HANDLE_ERROR( cudaMalloc((void **)&d_n, size));
+ HANDLE_ERROR( cudaMalloc((void **)&d_degree, size));
+ HANDLE_ERROR( cudaMalloc((void **)&d_nbiter, size));
+ 
+/* Declare arrays*/
+
+cudaError_t status = cudaMallocHost((void**)&array, n*sizeof(float));
+        if (status != cudaSuccess)
+                printf("Error allocating pinned host memory");
+
+cudaError_t status1 = cudaMallocHost((void**)&poly, degree+1*sizeof(float));
+        if (status != cudaSuccess)
+                printf("Error allocating pinned host memory");
+
+
+
+  for (int i=0; i<n; ++i)
+    array[i] = 1.;
+
+  for (int i=0; i<degree+1; ++i)
+    poly[i] = 1.;
+
+
+/* Initialize and allocate memory for arrays on device*/
+
+  float* d_array;
+  float* d_poly;
+
+  HANDLE_ERROR( cudaMalloc( (void**)&d_array, n * sizeof(float) ) );
+  HANDLE_ERROR( cudaMalloc((void**)&d_poly, (degree+1) * sizeof(float) ) );
+
+
+  cudaStream_t stream[streams];
+
+  for(int i=0;i<streams;i++)
+        {
+                cudaStreamCreate(&stream[i]);
+        }
+
+
+
+/* Copy the memory from Host to Device*/
+   std::chrono::time_point<std::chrono::system_clock> begin, end;
+
+   begin = std::chrono::system_clock::now();
+
+   end = std::chrono::system_clock::now();
+   HANDLE_ERROR( cudaMemcpy((void**)  d_n, &n,size,cudaMemcpyHostToDevice ) );
+   HANDLE_ERROR( cudaMemcpy((void**)  d_degree, &degree,size,cudaMemcpyHostToDevice ) );
+   HANDLE_ERROR( cudaMemcpy((void**)  d_nbiter, &nbiter,size,cudaMemcpyHostToDevice ) );
+   HANDLE_ERROR( cudaMemcpy((void**)  d_array,array , n * sizeof(float),cudaMemcpyHostToDevice ) );
+                                 
+
+   for(i=0;i<streams;i++)
+   {
+         int offset= i*streamsize;
+
+         HANDLE_ERROR(cudaMemcpyAsync(&d_array[offset], &array[offset], streamBytes, cudaMemcpyHostToDevice,stream[i]) );
+
+         polynomial_expansion<<<(streamsize/blocksize),blocksize,0,stream[i]>>>(d_poly,degree,(streamsize*i),d_array,offset);// We are supposed to call the function ibter times
+
+         HANDLE_ERROR(cudaMemcpyAsync(&array[offset], &d_array[offset], streamBytes, cudaMemcpyDeviceToHost,stream[i]) );
+   }
+
+
+
+  std::chrono::duration<double> totaltime = (end-begin);
+
+  std::cerr<<array[0]<<std::endl;
+  std::cout<<std::fixed<<" For array size " << n <<" The total time required is "<<(totaltime.count())<<std::endl;
+
+  cudaFree(d_array);
+  cudaFree(d_poly);
+
+  return 0;
+}
+
+
+
+
+
+
+
