@@ -18,6 +18,7 @@ __device__ float polynomial (float x, float* poly, int degree) {
   return out;
 }
 
+
 __global__ void polynomial_expansion (float* poly, int degree,
                            int n, float* array,int offset)
 {
@@ -27,7 +28,6 @@ __global__ void polynomial_expansion (float* poly, int degree,
     array[i] = polynomial (array[i], poly, degree);}
 
 }
-
 
 
 
@@ -43,7 +43,6 @@ inline  void HandleError( cudaError_t err,
     }
 }
 
-
 int main (int argc, char* argv[]) {
 
   if(argc!=6)
@@ -52,7 +51,6 @@ int main (int argc, char* argv[]) {
         return 0;
   }
 
-/* Take command line arguments*/
 
   int n = atoi(argv[1]); //TODO: atoi is an unsafe function
   printf("The size of array is %d\n",n);
@@ -61,8 +59,8 @@ int main (int argc, char* argv[]) {
   int nbiter = atoi(argv[3]);
   printf("The iterations are %d\n",nbiter);
   int blocksize=atoi(argv[4]);
-  printf("Threads per block are %d\n",threadsperblock);
-  int totalblocks= (int) n/threadsperblock;
+  printf("Threads per block are %d\n",blocksize);
+  int totalblocks= (int) n/blocksize;
   int streams= atoi(argv[5]);
 
   if(n%blocksize!=0)
@@ -72,34 +70,30 @@ int main (int argc, char* argv[]) {
   }
    printf("Total blocks are %d\n",totalblocks);
 
-    const int streamSize = n / streams;
-    const int streamBytes = streamSize * sizeof(float);
+
+    const int streamsize = n / streams; // Number of array elements per stream
+    const int streambytes = streamsize * sizeof(float); // Number of bytes to be transferred per stream
+
+    int size= sizeof(int);;
 
 
-    int size= sizeof(int);
- // printf("The total number of blocks are %d\n", totalblocks);
-
- /* Initialize and allocate memory for device*/
  float *array;
- float *poly;
  int *d_n;
  int *d_degree;
  int *d_nbiter;
  HANDLE_ERROR( cudaMalloc((void **)&d_n, size));
  HANDLE_ERROR( cudaMalloc((void **)&d_degree, size));
  HANDLE_ERROR( cudaMalloc((void **)&d_nbiter, size));
- 
-/* Declare arrays*/
-
-cudaError_t status = cudaMallocHost((void**)&array, n*sizeof(float));
+ cudaError_t status = cudaMallocHost((void**)&array, n*sizeof(float));
         if (status != cudaSuccess)
                 printf("Error allocating pinned host memory");
 
-cudaError_t status1 = cudaMallocHost((void**)&poly, degree+1*sizeof(float));
+/*cudaError_t status1 = cudaMallocHost((void**)&poly, degree+1*sizeof(float));
         if (status != cudaSuccess)
                 printf("Error allocating pinned host memory");
+*/
 
-
+  float* poly = new float[degree+1];   // It isnt page lock memory
 
   for (int i=0; i<n; ++i)
     array[i] = 1.;
@@ -129,42 +123,39 @@ cudaError_t status1 = cudaMallocHost((void**)&poly, degree+1*sizeof(float));
 /* Copy the memory from Host to Device*/
    std::chrono::time_point<std::chrono::system_clock> begin, end;
 
-   begin = std::chrono::system_clock::now();
-
-   end = std::chrono::system_clock::now();
    HANDLE_ERROR( cudaMemcpy((void**)  d_n, &n,size,cudaMemcpyHostToDevice ) );
    HANDLE_ERROR( cudaMemcpy((void**)  d_degree, &degree,size,cudaMemcpyHostToDevice ) );
    HANDLE_ERROR( cudaMemcpy((void**)  d_nbiter, &nbiter,size,cudaMemcpyHostToDevice ) );
-   HANDLE_ERROR( cudaMemcpy((void**)  d_array,array , n * sizeof(float),cudaMemcpyHostToDevice ) );
-                                 
+   HANDLE_ERROR( cudaMemcpy((void**)   d_poly ,poly , (degree+1) * sizeof(float),cudaMemcpyHostToDevice ) );
 
-   for(i=0;i<streams;i++)
+   cudaDeviceSynchronize();
+ begin = std::chrono::system_clock::now();
+
+   for(int i=0;i<streams;i++)
    {
          int offset= i*streamsize;
 
-         HANDLE_ERROR(cudaMemcpyAsync(&d_array[offset], &array[offset], streamBytes, cudaMemcpyHostToDevice,stream[i]) );
+         HANDLE_ERROR(cudaMemcpyAsync(&d_array[offset], &array[offset], streambytes, cudaMemcpyHostToDevice,stream[i]) );
 
          polynomial_expansion<<<(streamsize/blocksize),blocksize,0,stream[i]>>>(d_poly,degree,(streamsize*i),d_array,offset);// We are supposed to call the function ibter times
 
-         HANDLE_ERROR(cudaMemcpyAsync(&array[offset], &d_array[offset], streamBytes, cudaMemcpyDeviceToHost,stream[i]) );
+         HANDLE_ERROR(cudaMemcpyAsync(&array[offset], &d_array[offset], streambytes, cudaMemcpyDeviceToHost,stream[i]) );
    }
 
+    end = std::chrono::system_clock::now();
 
 
-  std::chrono::duration<double> totaltime = (end-begin);
+   cudaDeviceSynchronize();
+   std::chrono::duration<double> totaltime = (end-begin);
 
-  std::cerr<<array[0]<<std::endl;
-  std::cout<<std::fixed<<" For array size " << n <<" The total time required is "<<(totaltime.count())<<std::endl;
+   std::cerr<<array[0]<<std::endl;
+   std::cout<<std::fixed<<" For array size " << n <<" The total time required is "<<(totaltime.count())<<std::endl;
+
+
 
   cudaFree(d_array);
   cudaFree(d_poly);
 
   return 0;
 }
-
-
-
-
-
-
 
