@@ -1,0 +1,3 @@
+Conv_avx ha sthe final optimized code
+Conv_cacheblock was the code when i tried blocking to extract spatial locality.
+Naive convolution is the first implementation of convolution
