@@ -35,7 +35,7 @@ int main(void)
 
     for(i=0;i<size;i++)                                               // Traverse through the array as if it is a linked list
     {
-      current=next[i];
+      current=next[current];
 
     }
 
