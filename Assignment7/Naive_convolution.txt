@@ -19,7 +19,7 @@ inline  void HandleError( cudaError_t err,
     }
 }
 
-__global__ void convolution(float *image, float *kernel, int n , int m, int k,float *out_image)
+__global__ void convolution(float *image,  const float* __restrict__ kernel, int n , int m, int k,float *out_image)
 {
         int row = blockDim.y * blockIdx.y + threadIdx.y;
         int col = blockDim.x * blockIdx.x + threadIdx.x;
