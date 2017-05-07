@@ -43,9 +43,11 @@ inline  void HandleError( cudaError_t err,
     }
 }
 
+
+
 int main (int argc, char* argv[]) {
 
-  if(argc!=6)
+  if(argc!=7)
   {
         printf("Not enough arguments");
         return 0;
@@ -61,7 +63,12 @@ int main (int argc, char* argv[]) {
   int blocksize=atoi(argv[4]);
   printf("Threads per block are %d\n",blocksize);
   int totalblocks= (int) n/blocksize;
-  int streams= atoi(argv[5]);
+  int chunk_size= atoi(argv[5]);
+  int streams= atoi(argv[6]);
+
+  //Add chunk size//
+
+  int total_chunks=(n/chunk_size);
 
   if(n%blocksize!=0)
   {
@@ -71,20 +78,23 @@ int main (int argc, char* argv[]) {
    printf("Total blocks are %d\n",totalblocks);
 
 
-    const int streamsize = n / streams; // Number of array elements per stream
+    const int streamsize = chunk_size/streams; // Number of array elements per stream
     const int streambytes = streamsize * sizeof(float); // Number of bytes to be transferred per stream
 
+
     int size= sizeof(int);;
-
-
- float *array;
+    float *array;
  int *d_n;
  int *d_degree;
  int *d_nbiter;
  HANDLE_ERROR( cudaMalloc((void **)&d_n, size));
  HANDLE_ERROR( cudaMalloc((void **)&d_degree, size));
  HANDLE_ERROR( cudaMalloc((void **)&d_nbiter, size));
- cudaError_t status = cudaMallocHost((void**)&array, n*sizeof(float));
+
+
+/* Declare arrays*/
+
+cudaError_t status = cudaMallocHost((void**)&array, n*sizeof(float));
         if (status != cudaSuccess)
                 printf("Error allocating pinned host memory");
 
@@ -110,8 +120,7 @@ int main (int argc, char* argv[]) {
   HANDLE_ERROR( cudaMalloc( (void**)&d_array, n * sizeof(float) ) );
   HANDLE_ERROR( cudaMalloc((void**)&d_poly, (degree+1) * sizeof(float) ) );
 
-
-  cudaStream_t stream[streams];
+   cudaStream_t stream[streams];
 
   for(int i=0;i<streams;i++)
         {
@@ -129,11 +138,15 @@ int main (int argc, char* argv[]) {
    HANDLE_ERROR( cudaMemcpy((void**)   d_poly ,poly , (degree+1) * sizeof(float),cudaMemcpyHostToDevice ) );
 
    cudaDeviceSynchronize();
- begin = std::chrono::system_clock::now();
 
-   for(int i=0;i<streams;i++)
+   begin = std::chrono::system_clock::now();
+
+
+for(int j=0; j<total_chunks; j++)
+{
+   for(int i=1;i<=streams;i++)
    {
-         int offset= i*streamsize;
+         int offset=(j+1)*i*streamsize;
 
          HANDLE_ERROR(cudaMemcpyAsync(&d_array[offset], &array[offset], streambytes, cudaMemcpyHostToDevice,stream[i]) );
 
@@ -141,8 +154,9 @@ int main (int argc, char* argv[]) {
 
          HANDLE_ERROR(cudaMemcpyAsync(&array[offset], &d_array[offset], streambytes, cudaMemcpyDeviceToHost,stream[i]) );
    }
+}
 
-    end = std::chrono::system_clock::now();
+  end = std::chrono::system_clock::now();
 
 
    cudaDeviceSynchronize();
@@ -158,4 +172,11 @@ int main (int argc, char* argv[]) {
 
   return 0;
 }
+
+
+
+
+
+
+
 
