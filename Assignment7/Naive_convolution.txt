@@ -120,19 +120,19 @@ int main (int argc, char* argv[]) {
 // Memory Allocation//
 std::chrono::time_point<std::chrono::system_clock> begin, end;
 
-cudaMalloc((void**)&d_image, (total_pixels)*sizeof(float));
-cudaMalloc((void**)&d_kernel, (k*k)*sizeof(float));
-cudaMalloc((void**)&d_outimage, (total_pixels)*sizeof(float));
+HANDLE_ERROR(cudaMalloc((void**)&d_image, (total_pixels)*sizeof(float)));
+HANDLE_ERROR(cudaMalloc((void**)&d_kernel, (k*k)*sizeof(float)));
+HANDLE_ERROR(cudaMalloc((void**)&d_outimage, (total_pixels)*sizeof(float)));
 
 
-cudaMemcpy(d_outimage,output_image,(total_pixels)*sizeof(float),cudaMemcpyHostToDevice);
+HANDLE_ERROR(cudaMemcpy(d_outimage,output_image,(total_pixels)*sizeof(float),cudaMemcpyHostToDevice));
 
 
-cudaMemcpy(d_image,image,(total_pixels)*sizeof(float),cudaMemcpyHostToDevice);
+HANDLE_ERROR(cudaMemcpy(d_image,image,(total_pixels)*sizeof(float),cudaMemcpyHostToDevice));
 
 //cudaDeviceSynchronize();
 
-cudaMemcpy(d_kernel,kernel,(k*k)*sizeof(float),cudaMemcpyHostToDevice);
+HANDLE_ERROR(cudaMemcpy(d_kernel,kernel,(k*k)*sizeof(float),cudaMemcpyHostToDevice));
 
 const dim3 blocksize(16,16);
 // Launch Kernel
@@ -147,7 +147,7 @@ cudaDeviceSynchronize();
 
 end = std::chrono::system_clock::now();
 
-cudaMemcpy(output_image, d_outimage, (m*n)*sizeof(float),cudaMemcpyDeviceToHost);
+HANDLE_ERROR(cudaMemcpy(output_image, d_outimage, (m*n)*sizeof(float),cudaMemcpyDeviceToHost));
 
 
 /*int p=0;
