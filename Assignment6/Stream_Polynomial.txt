@@ -144,8 +144,10 @@ cudaError_t status = cudaMallocHost((void**)&array, n*sizeof(float));
 
 for(int j=0; j<total_chunks; j++)
 {
+    int device=0;
    for(int i=1;i<=streams;i++)
    {
+         cudaSetDevice(device%2);
          int offset=(j+1)*i*streamsize;
 
          HANDLE_ERROR(cudaMemcpyAsync(&d_array[offset], &array[offset], streambytes, cudaMemcpyHostToDevice,stream[i]) );
@@ -153,13 +155,16 @@ for(int j=0; j<total_chunks; j++)
          polynomial_expansion<<<(streamsize/blocksize),blocksize,0,stream[i]>>>(d_poly,degree,(streamsize*i),d_array,offset);// We are supposed to call the function ibter times
 
          HANDLE_ERROR(cudaMemcpyAsync(&array[offset], &d_array[offset], streambytes, cudaMemcpyDeviceToHost,stream[i]) );
+         device++;
    }
 }
 
-  end = std::chrono::system_clock::now();
+   cudaSetDevice(0);
+	 cudaDeviceSynchronize();
+	 cudaSetDevice(1);
+	 cudaDeviceSynchronize();
+   end = std::chrono::system_clock::now();
 
-
-   cudaDeviceSynchronize();
    std::chrono::duration<double> totaltime = (end-begin);
 
    std::cerr<<array[0]<<std::endl;
